@@ -33,7 +33,7 @@ func main() {
 	// Initialize services
 	userService := service.NewUserService(userRepo)
 	groupService := service.NewGroupService(userRepo, groupRepo, memberRepo, expenseRepo, splitRepo, balanceRepo)
-	expenseService := service.NewExpenseService(userRepo, expenseRepo, splitRepo)
+	expenseService := service.NewExpenseService(userRepo, expenseRepo, splitRepo, memberRepo)
 	balanceService := service.NewBalanceService(balanceRepo)
 	settlementService := service.NewSettlementService(settlementRepo, userRepo, balanceRepo)
 

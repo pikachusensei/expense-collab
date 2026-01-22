@@ -11,17 +11,20 @@ type ExpenseService struct {
 	userRepo    *repositorypg.UserRepositoryPG
 	expenseRepo *repositorypg.ExpenseRepositoryPG
 	splitRepo   *repositorypg.ExpenseSplitRepositoryPG
+	memberRepo  *repositorypg.GroupMemberRepositoryPG
 }
 
 func NewExpenseService(
 	userRepo *repositorypg.UserRepositoryPG,
 	expenseRepo *repositorypg.ExpenseRepositoryPG,
 	splitRepo *repositorypg.ExpenseSplitRepositoryPG,
+	memberRepo *repositorypg.GroupMemberRepositoryPG,
 ) *ExpenseService {
 	return &ExpenseService{
 		userRepo:    userRepo,
 		expenseRepo: expenseRepo,
 		splitRepo:   splitRepo,
+		memberRepo:  memberRepo,
 	}
 }
 
@@ -46,6 +49,32 @@ func (s *ExpenseService) CreateExpense(groupID, paidByID int, amount float64, de
 	createdExpense, err := s.expenseRepo.CreateExpense(expense)
 	if err != nil {
 		return nil, err
+	}
+
+	// Auto-split expense equally among all group members
+	members, err := s.memberRepo.GetGroupMembers(groupID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get group members: %v", err)
+	}
+
+	if len(members) == 0 {
+		return nil, fmt.Errorf("no members in group")
+	}
+
+	// Calculate split amount
+	splitAmount := amount / float64(len(members))
+
+	// Create splits for each member
+	for _, member := range members {
+		split := &model.ExpenseSplit{
+			ExpenseID: createdExpense.ID,
+			UserID:    member.UserID,
+			Amount:    splitAmount,
+		}
+		_, err := s.splitRepo.CreateSplit(split)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create split: %v", err)
+		}
 	}
 
 	return &model.ExpenseResponse{
