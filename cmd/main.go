@@ -81,7 +81,7 @@ func main() {
 
 	// Expense routes
 	router.POST("/api/expenses", expenseHandler.CreateExpense)
-	router.GET("/api/expenses", expenseHandler.GetExpense)
+	router.GET("/api/expenses/:id", expenseHandler.GetExpense)
 	router.GET("/api/expenses/group/:group_id", expenseHandler.GetGroupExpenses)
 	router.GET("/api/expenses/user/:user_id", expenseHandler.GetUserExpenses)
 	router.PUT("/api/expenses/:id", expenseHandler.UpdateExpense)
