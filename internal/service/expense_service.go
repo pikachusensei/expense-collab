@@ -8,15 +8,18 @@ import (
 )
 
 type ExpenseService struct {
+	userRepo    *repositorypg.UserRepositoryPG
 	expenseRepo *repositorypg.ExpenseRepositoryPG
 	splitRepo   *repositorypg.ExpenseSplitRepositoryPG
 }
 
 func NewExpenseService(
+	userRepo *repositorypg.UserRepositoryPG,
 	expenseRepo *repositorypg.ExpenseRepositoryPG,
 	splitRepo *repositorypg.ExpenseSplitRepositoryPG,
 ) *ExpenseService {
 	return &ExpenseService{
+		userRepo:    userRepo,
 		expenseRepo: expenseRepo,
 		splitRepo:   splitRepo,
 	}
@@ -25,6 +28,12 @@ func NewExpenseService(
 func (s *ExpenseService) CreateExpense(groupID, paidByID int, amount float64, description string) (*model.ExpenseResponse, error) {
 	if amount <= 0 {
 		return nil, fmt.Errorf("amount must be greater than 0")
+	}
+
+	// Get user details
+	user, err := s.userRepo.GetUserByID(paidByID)
+	if err != nil {
+		return nil, fmt.Errorf("user not found")
 	}
 
 	expense := &model.Expense{
@@ -43,6 +52,7 @@ func (s *ExpenseService) CreateExpense(groupID, paidByID int, amount float64, de
 		ID:          createdExpense.ID,
 		GroupID:     createdExpense.GroupID,
 		PaidByID:    createdExpense.PaidByID,
+		PaidByName:  user.Name,
 		Amount:      createdExpense.Amount,
 		Description: createdExpense.Description,
 		CreatedAt:   createdExpense.CreatedAt,
@@ -55,10 +65,17 @@ func (s *ExpenseService) GetExpenseByID(id int) (*model.ExpenseResponse, error) 
 		return nil, err
 	}
 
+	// Get user details
+	user, err := s.userRepo.GetUserByID(expense.PaidByID)
+	if err != nil {
+		return nil, fmt.Errorf("user not found")
+	}
+
 	return &model.ExpenseResponse{
 		ID:          expense.ID,
 		GroupID:     expense.GroupID,
 		PaidByID:    expense.PaidByID,
+		PaidByName:  user.Name,
 		Amount:      expense.Amount,
 		Description: expense.Description,
 		CreatedAt:   expense.CreatedAt,
@@ -73,10 +90,17 @@ func (s *ExpenseService) GetExpensesByGroupID(groupID int) ([]*model.ExpenseResp
 
 	var responses []*model.ExpenseResponse
 	for _, expense := range expenses {
+		// Get user details
+		user, err := s.userRepo.GetUserByID(expense.PaidByID)
+		if err != nil {
+			continue // Skip if user not found
+		}
+
 		responses = append(responses, &model.ExpenseResponse{
 			ID:          expense.ID,
 			GroupID:     expense.GroupID,
 			PaidByID:    expense.PaidByID,
+			PaidByName:  user.Name,
 			Amount:      expense.Amount,
 			Description: expense.Description,
 			CreatedAt:   expense.CreatedAt,
@@ -94,10 +118,17 @@ func (s *ExpenseService) GetExpensesByUserID(userID int) ([]*model.ExpenseRespon
 
 	var responses []*model.ExpenseResponse
 	for _, expense := range expenses {
+		// Get user details
+		user, err := s.userRepo.GetUserByID(expense.PaidByID)
+		if err != nil {
+			continue // Skip if user not found
+		}
+
 		responses = append(responses, &model.ExpenseResponse{
 			ID:          expense.ID,
 			GroupID:     expense.GroupID,
 			PaidByID:    expense.PaidByID,
+			PaidByName:  user.Name,
 			Amount:      expense.Amount,
 			Description: expense.Description,
 			CreatedAt:   expense.CreatedAt,
@@ -123,10 +154,17 @@ func (s *ExpenseService) UpdateExpense(id int, amount float64, description strin
 		return nil, err
 	}
 
+	// Get user details
+	user, err := s.userRepo.GetUserByID(updatedExpense.PaidByID)
+	if err != nil {
+		return nil, fmt.Errorf("user not found")
+	}
+
 	return &model.ExpenseResponse{
 		ID:          updatedExpense.ID,
 		GroupID:     updatedExpense.GroupID,
 		PaidByID:    updatedExpense.PaidByID,
+		PaidByName:  user.Name,
 		Amount:      updatedExpense.Amount,
 		Description: updatedExpense.Description,
 		CreatedAt:   updatedExpense.CreatedAt,

@@ -23,6 +23,7 @@ type ExpenseResponse struct {
 	ID          int       `json:"id"`
 	GroupID     int       `json:"group_id"`
 	PaidByID    int       `json:"paid_by_id"`
+	PaidByName  string    `json:"paid_by_name"`
 	Amount      float64   `json:"amount"`
 	Description string    `json:"description"`
 	CreatedAt   time.Time `json:"created_at"`
