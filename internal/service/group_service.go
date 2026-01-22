@@ -175,20 +175,10 @@ func (s *GroupService) RemoveMemberFromGroup(groupID, userID int) error {
 }
 
 func (s *GroupService) GetGroupMembers(groupID int) ([]*model.GroupMemberResponse, error) {
-	members, err := s.memberRepo.GetGroupMembers(groupID)
+	members, err := s.memberRepo.GetGroupMembersWithDetails(groupID)
 	if err != nil {
 		return nil, err
 	}
 
-	var responses []*model.GroupMemberResponse
-	for _, member := range members {
-		responses = append(responses, &model.GroupMemberResponse{
-			ID:      member.ID,
-			GroupID: member.GroupID,
-			UserID:  member.UserID,
-			AddedAt: member.AddedAt,
-		})
-	}
-
-	return responses, nil
+	return members, nil
 }

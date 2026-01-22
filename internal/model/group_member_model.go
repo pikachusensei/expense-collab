@@ -16,8 +16,10 @@ type GroupMemberRequest struct {
 }
 
 type GroupMemberResponse struct {
-	ID      int       `json:"id"`
-	GroupID int       `json:"group_id"`
-	UserID  int       `json:"user_id"`
-	AddedAt time.Time `json:"added_at"`
+	ID       int       `json:"id"`
+	GroupID  int       `json:"group_id"`
+	UserID   int       `json:"user_id"`
+	UserName string    `json:"username"`
+	Email    string    `json:"email"`
+	AddedAt  time.Time `json:"added_at"`
 }

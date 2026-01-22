@@ -104,6 +104,49 @@ func (r *GroupMemberRepositoryPG) GetGroupMembers(groupID int) ([]*model.GroupMe
 	return members, nil
 }
 
+// GetGroupMembersWithDetails returns group members with user details (name and email)
+func (r *GroupMemberRepositoryPG) GetGroupMembersWithDetails(groupID int) ([]*model.GroupMemberResponse, error) {
+	query := `
+		SELECT gm.id, gm.group_id, gm.user_id, u.name, u.email, gm.added_at
+		FROM group_members gm
+		JOIN users u ON gm.user_id = u.id
+		WHERE gm.group_id = $1
+		ORDER BY gm.added_at DESC
+	`
+
+	rows, err := r.DB.Query(query, groupID)
+	if err != nil {
+		log.Printf("Error getting group members with details: %v", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var members []*model.GroupMemberResponse
+	for rows.Next() {
+		member := &model.GroupMemberResponse{}
+		err := rows.Scan(
+			&member.ID,
+			&member.GroupID,
+			&member.UserID,
+			&member.UserName,
+			&member.Email,
+			&member.AddedAt,
+		)
+		if err != nil {
+			log.Printf("Error scanning member: %v", err)
+			return nil, err
+		}
+		members = append(members, member)
+	}
+
+	if err = rows.Err(); err != nil {
+		log.Printf("Error iterating members: %v", err)
+		return nil, err
+	}
+
+	return members, nil
+}
+
 func (r *GroupMemberRepositoryPG) GetUserGroups(userID int) ([]*model.GroupMember, error) {
 	query := `
 		SELECT id, group_id, user_id, added_at, updated_at

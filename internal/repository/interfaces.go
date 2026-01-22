@@ -24,6 +24,7 @@ type GroupMemberRepository interface {
 	AddMember(member *model.GroupMember) (*model.GroupMember, error)
 	RemoveMember(groupID, userID int) error
 	GetGroupMembers(groupID int) ([]*model.GroupMember, error)
+	GetGroupMembersWithDetails(groupID int) ([]*model.GroupMemberResponse, error)
 	GetUserGroups(userID int) ([]*model.GroupMember, error)
 	IsMember(groupID, userID int) (bool, error)
 }
