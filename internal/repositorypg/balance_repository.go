@@ -38,7 +38,8 @@ func (r *BalanceRepositoryPG) GetUserBalanceInGroup(userID, groupID int) (float6
 func (r *BalanceRepositoryPG) GetGroupBalances(groupID int) (map[int]float64, error) {
 	query := `
 		SELECT DISTINCT u.id,
-			COALESCE(SUM(es.amount), 0) - COALESCE(SUM(CASE WHEN e.paid_by_id = u.id THEN e.amount ELSE 0 END), 0) as balance
+			COALESCE(SUM(CASE WHEN e.paid_by_id != u.id THEN es.amount ELSE 0 END), 0) - 
+			COALESCE(SUM(CASE WHEN e.paid_by_id = u.id THEN e.amount ELSE 0 END), 0) as balance
 		FROM users u
 		JOIN group_members gm ON u.id = gm.user_id
 		LEFT JOIN expense_splits es ON u.id = es.user_id
