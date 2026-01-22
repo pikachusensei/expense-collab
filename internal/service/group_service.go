@@ -8,6 +8,7 @@ import (
 )
 
 type GroupService struct {
+	userRepo    *repositorypg.UserRepositoryPG
 	groupRepo   *repositorypg.GroupRepositoryPG
 	memberRepo  *repositorypg.GroupMemberRepositoryPG
 	expenseRepo *repositorypg.ExpenseRepositoryPG
@@ -16,6 +17,7 @@ type GroupService struct {
 }
 
 func NewGroupService(
+	userRepo *repositorypg.UserRepositoryPG,
 	groupRepo *repositorypg.GroupRepositoryPG,
 	memberRepo *repositorypg.GroupMemberRepositoryPG,
 	expenseRepo *repositorypg.ExpenseRepositoryPG,
@@ -23,6 +25,7 @@ func NewGroupService(
 	balanceRepo *repositorypg.BalanceRepositoryPG,
 ) *GroupService {
 	return &GroupService{
+		userRepo:    userRepo,
 		groupRepo:   groupRepo,
 		memberRepo:  memberRepo,
 		expenseRepo: expenseRepo,
@@ -167,6 +170,45 @@ func (s *GroupService) AddMemberToGroup(groupID, userID int) (*model.GroupMember
 		GroupID: createdMember.GroupID,
 		UserID:  createdMember.UserID,
 		AddedAt: createdMember.AddedAt,
+	}, nil
+}
+
+// AddMemberToGroupByEmail adds a member by email and returns enriched response with user details
+func (s *GroupService) AddMemberToGroupByEmail(groupID int, email string) (*model.GroupMemberResponse, error) {
+	// Look up user by email
+	user, err := s.userRepo.GetUserByEmail(email)
+	if err != nil {
+		return nil, fmt.Errorf("user not found with email: %s", email)
+	}
+
+	// Check if already a member
+	isMember, err := s.memberRepo.IsMember(groupID, user.ID)
+	if err != nil {
+		return nil, err
+	}
+	if isMember {
+		return nil, fmt.Errorf("user is already a member of this group")
+	}
+
+	// Create member
+	member := &model.GroupMember{
+		GroupID: groupID,
+		UserID:  user.ID,
+	}
+
+	createdMember, err := s.memberRepo.AddMember(member)
+	if err != nil {
+		return nil, err
+	}
+
+	// Return enriched response with user details
+	return &model.GroupMemberResponse{
+		ID:       createdMember.ID,
+		GroupID:  createdMember.GroupID,
+		UserID:   createdMember.UserID,
+		UserName: user.Name,
+		Email:    user.Email,
+		AddedAt:  createdMember.AddedAt,
 	}, nil
 }
 

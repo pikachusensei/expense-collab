@@ -130,7 +130,7 @@ func (h *GroupHandler) AddGroupMember(c *gin.Context) {
 		return
 	}
 
-	member, err := h.groupService.AddMemberToGroup(req.GroupID, req.UserID)
+	member, err := h.groupService.AddMemberToGroupByEmail(req.GroupID, req.Email)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

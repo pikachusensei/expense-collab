@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 	"os"
-	
+
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -32,7 +32,7 @@ func main() {
 
 	// Initialize services
 	userService := service.NewUserService(userRepo)
-	groupService := service.NewGroupService(groupRepo, memberRepo, expenseRepo, splitRepo, balanceRepo)
+	groupService := service.NewGroupService(userRepo, groupRepo, memberRepo, expenseRepo, splitRepo, balanceRepo)
 	expenseService := service.NewExpenseService(expenseRepo, splitRepo)
 	balanceService := service.NewBalanceService(balanceRepo)
 	settlementService := service.NewSettlementService(settlementRepo, userRepo, balanceRepo)
@@ -68,7 +68,7 @@ func main() {
 
 	// Group routes
 	router.POST("/api/groups", groupHandler.CreateGroup)
-	router.GET("/api/groups", groupHandler.GetAllGroups)
+	router.GET("/api/groups", groupHandler.GetAllGroups) //////////TO REMOVE THIS LATER
 	router.GET("/api/groups/:id", groupHandler.GetGroup)
 	router.PUT("/api/groups/:id", groupHandler.UpdateGroup)
 	router.DELETE("/api/groups/:id", groupHandler.DeleteGroup)

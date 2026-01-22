@@ -11,8 +11,8 @@ type GroupMember struct {
 }
 
 type GroupMemberRequest struct {
-	GroupID int `json:"group_id" binding:"required"`
-	UserID  int `json:"user_id" binding:"required"`
+	GroupID int    `json:"group_id" binding:"required"`
+	Email   string `json:"email" binding:"required"`
 }
 
 type GroupMemberResponse struct {
