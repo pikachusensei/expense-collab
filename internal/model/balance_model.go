@@ -23,3 +23,10 @@ type UserBalanceResponse struct {
 	UserName string  `json:"user_name"`
 	Amount   float64 `json:"amount"`
 }
+
+type UserBalanceView struct {
+	UserID   int     `json:"user_id"`
+	UserName string  `json:"user_name"`
+	Amount   float64 `json:"amount"`
+	Type     string  `json:"type"` // "you_owe" | "owes_you"
+}

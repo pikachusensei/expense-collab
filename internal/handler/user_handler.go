@@ -17,16 +17,6 @@ func NewUserHandler(userService *service.UserService) *UserHandler {
 	return &UserHandler{userService: userService}
 }
 
-// Register godoc
-// @Summary Register a new user
-// @Description Create a new user account with email and name
-// @Tags users
-// @Accept json
-// @Produce json
-// @Param request body model.UserRequest true "User registration data"
-// @Success 201 {object} model.UserResponse
-// @Failure 400 {object} map[string]string
-// @Router /api/users/register [post]
 func (h *UserHandler) Register(c *gin.Context) {
 	var req model.UserRequest
 

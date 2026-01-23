@@ -81,7 +81,7 @@ func main() {
 
 	// Expense routes
 	router.POST("/api/expenses", expenseHandler.CreateExpense)
-	router.GET("/api/expenses/:id", expenseHandler.GetExpense)
+	router.GET("/api/expenses/:id", expenseHandler.GetExpense) ////////////ADDED THIS
 	router.GET("/api/expenses/group/:group_id", expenseHandler.GetGroupExpenses)
 	router.GET("/api/expenses/user/:user_id", expenseHandler.GetUserExpenses)
 	router.PUT("/api/expenses/:id", expenseHandler.UpdateExpense)
@@ -96,6 +96,7 @@ func main() {
 	// Balance routes
 	router.GET("/api/balance/user/:user_id/group/:group_id", balanceHandler.GetUserBalance)
 	router.GET("/api/balance/group/:group_id", balanceHandler.GetGroupBalances)
+	router.GET("/api/balance/:user_id/group/:group_id", balanceHandler.GetUserGroupBalances)
 
 	// Settlement/Payment routes
 	router.POST("/api/settle", settlementHandler.CreateSettlement)
